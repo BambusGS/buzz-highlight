@@ -12,13 +12,22 @@
         "include": "#keywords"
       },
       {
+        "include": "#builtin_functions"
+      },
+      {
+        "include": "#special_variables"
+      },
+      {
+        "include": "#namespaces"
+      },
+      {
+        "include": "#variables"
+      },
+      {
         "include": "#numbers"
       },
       {
         "include": "#operators"
-      },
-      {
-        "include": "#builtin_functions"
       }
     ],
     "repository": {
@@ -49,11 +58,81 @@
         "patterns": [
           {
             "name": "keyword.control.buzz",
-            "match": "\\b(var|function|if|else|while|for|foreach|include|return|nil|and|or|not)\\b"
+            "match": "\\b(var|function|if|elseif|else|while|for|foreach|include|return|in|exec|not|and|or)\\b"
           },
           {
             "name": "storage.type.buzz",
-            "match": "\\b(integer|float|string|table|closure|userdata)\\b"
+            "match": "\\b(nil|integer|float|string|table|closure|userdata)\\b"
+          }
+        ]
+      },
+      "variables": {
+        "patterns": [
+          {
+            "name": "meta.function.declaration.buzz",
+            "begin": "\\b(function)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
+            "beginCaptures": {
+              "1": { "name": "keyword.control.buzz" },
+              "2": { "name": "entity.name.function.buzz" }
+            },
+            "end": "\\)",
+            "patterns": [
+              {
+                "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\b",
+                "name": "variable.parameter.buzz"
+              }
+            ]
+          },
+          {
+            "name": "meta.function.anonymous.buzz",
+            "match": "\\b(function)\\s*\\(([^)]*)\\)",
+            "captures": {
+              "1": { "name": "keyword.control.buzz" },
+              "2": { "patterns": [
+                {
+                  "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\b",
+                  "name": "variable.parameter.buzz"
+                }
+              ]}
+            }
+          },
+          {
+            "name": "meta.function.call.buzz",
+            "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
+            "captures": {
+              "1": { "name": "entity.name.function.buzz" }
+            }
+          },
+          {
+            "name": "variable.declaration.buzz",
+            "match": "\\b(var)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+            "captures": {
+              "1": { "name": "storage.type.buzz" },
+              "2": { "name": "variable.other.buzz" }
+            }
+          },
+          {
+            "name": "variable.other.constant.buzz",
+            "match": "\\b[A-Z][A-Z0-9_]*\\b(?!\\s*\\()",
+            "captures": {
+              "0": { "name": "variable.other.constant.buzz" }
+            }
+          },
+          {
+            "name": "variable.assignment.buzz",
+            "match": "\\b(?!var|function|if|else|elseif|while|for|foreach|include|return|nil|and|or|not|math|string|io|swarm|stigmergy|neighbors|queue|self|id)([A-Za-z_][A-Za-z0-9_]*)\\s*(=)(?!=)",
+            "captures": {
+              "1": { "name": "variable.other.buzz" },
+              "2": { "name": "keyword.operator.assignment.buzz" }
+            }
+          },
+          {
+            "name": "variable.other.member.buzz",
+            "match": "\\b(?!math|string|io|swarm|stigmergy|neighbors|queue)([A-Za-z_][A-Za-z0-9_]*)\\s*\\.\\s*([A-Za-z_][A-Za-z0-9_]*)\\b(?!\\s*\\()",
+            "captures": {
+              "1": { "name": "variable.other.object.buzz" },
+              "2": { "name": "variable.other.property.buzz" }
+            }
           }
         ]
       },
@@ -74,6 +153,26 @@
           {
             "name": "keyword.operator.comparison.buzz",
             "match": "(==|!=|<=|>=|<|>)"
+          },
+          {
+            "name": "keyword.operator.assignment.buzz",
+            "match": "="
+          }
+        ]
+      },
+      "special_variables": {
+        "patterns": [
+          {
+            "name": "variable.language.buzz",
+            "match": "\\b(self|id|errno|error_message)\\b"
+          }
+        ]
+      },
+      "namespaces": {
+        "patterns": [
+          {
+            "name": "support.class.buzz",
+            "match": "\\b(math|string|io|swarm|stigmergy|neighbors|queue)\\b"
           }
         ]
       },
@@ -81,30 +180,57 @@
         "patterns": [
           {
             "name": "support.function.buzz",
-            "match": "\\b(type|size|foreach|map|reduce|log|print|fopen|fclose|fsize|fforeach|fwrite)\\b"
+            "match": "\\b(type|size|foreach|map|reduce|log|print)\\b"
           },
           {
-            "name": "support.function.buzz",
-            "match": "\\b(setseed|uniform|gaussian|exponential)\\b"
+            "name": "support.function.string.buzz",
+            "match": "\\b(string\\.(length|sub|concat|tostring|toint|tofloat))\\b"
           },
           {
-            "name": "support.function.buzz",
-            "match": "\\b(math\\.abs|math\\.log|math\\.log2|math\\.log10|math\\.exp|math\\.sqrt|math\\.sin|math\\.cos|math\\.tan|math\\.asin|math\\.acos|math\\.atan|math\\.min|math\\.max|math\\.pi)\\b"
+            "name": "support.function.io.buzz",
+            "match": "\\b(io\\.(fopen|fclose|fsize|fforeach|fwrite))\\b"
           },
           {
-            "name": "support.function.buzz",
-            "match": "\\b(neighbors\\.get|neighbors\\.kin|neighbors\\.nonkin|neighbors\\.map|neighbors\\.reduce|neighbors\\.filter|neighbors\\.foreach|neighbors\\.count|neighbors\\.broadcast|neighbors\\.listen|neighbors\\.ignore)\\b"
+            "name": "support.function.math.buzz",
+            "match": "\\b(math\\.(abs|log|log2|log10|exp|sqrt|sin|cos|tan|asin|acos|atan|min|max))\\b"
           },
           {
-            "name": "support.function.buzz",
-            "match": "\\b(swarm\\.create|swarm\\.intersection|swarm\\.union|swarm\\.difference)\\b"
+            "name": "support.function.math.rng.buzz",
+            "match": "\\b(math\\.rng\\.(setseed|uniform|gaussian|exponential))\\b"
           },
           {
-            "name": "support.function.buzz",
+            "name": "support.function.math.vec2.buzz",
+            "match": "\\b(math\\.vec2\\.(new|newp|rotate))\\b"
+          },
+          {
+            "name": "support.function.swarm.buzz",
+            "match": "\\b(swarm\\.(create|intersection|union|difference))\\b"
+          },
+          {
+            "name": "support.function.swarm.instance.buzz",
+            "match": "\\b(join|select|unselect|leave|in|exec|others)\\b"
+          },
+          {
+            "name": "support.function.stigmergy.buzz",
             "match": "\\b(stigmergy\\.create)\\b"
+          },
+          {
+            "name": "support.function.stigmergy.instance.buzz",
+            "match": "\\b(get|put|size|onconflict|onconflictlost|foreach)\\b"
+          },
+          {
+            "name": "support.function.neighbors.buzz",
+            "match": "\\b(neighbors\\.(get|kin|nonkin|map|reduce|filter|foreach|count|broadcast|listen|ignore))\\b"
+          },
+          {
+            "name": "support.function.queue.buzz",
+            "match": "\\b(queue\\.(new|push|pop|print))\\b"
+          },
+          {
+            "name": "support.constant.buzz",
+            "match": "\\b(math\\.pi)\\b"
           }
         ]
       }
     }
   }
-  
