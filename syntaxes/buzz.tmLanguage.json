@@ -1,34 +1,18 @@
 {
-  "scopeName": "source.buzz",
   "name": "Buzz",
+  "scopeName": "source.buzz",
+  "fileTypes": ["bzz"],
   "patterns": [
-    {
-      "include": "#comments"
-    },
-    {
-      "include": "#strings"
-    },
-    {
-      "include": "#keywords"
-    },
-    {
-      "include": "#builtin_functions"
-    },
-    {
-      "include": "#special_variables"
-    },
-    {
-      "include": "#namespaces"
-    },
-    {
-      "include": "#variables"
-    },
-    {
-      "include": "#numbers"
-    },
-    {
-      "include": "#operators"
-    }
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#keywords" },
+    { "include": "#control" },
+    { "include": "#functions" },
+    { "include": "#constants" },
+    { "include": "#operators" },
+    { "include": "#numbers" },
+    { "include": "#builtin-libraries" },
+    { "include": "#variables" }
   ],
   "repository": {
     "comments": {
@@ -48,7 +32,18 @@
           "patterns": [
             {
               "name": "constant.character.escape.buzz",
-              "match": "\\\\."
+              "match": "\\\\(n|r|t|\\\\|\"|'|0|f|v|b)"
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.buzz",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.buzz",
+              "match": "\\\\(n|r|t|\\\\|\"|'|0|f|v|b)"
             }
           ]
         }
@@ -57,224 +52,264 @@
     "keywords": {
       "patterns": [
         {
-          "name": "keyword.control.buzz",
-          "match": "\\b(var|function|if|elseif|else|while|for|foreach|include|return|in|exec|not|and|or)\\b"
+          "name": "keyword.declaration.buzz",
+          "match": "\\b(var|include)\\b"
         },
         {
-          "name": "storage.type.buzz",
-          "match": "\\b(nil|integer|float|string|table|closure|userdata)\\b"
+          "name": "keyword.declaration.function.buzz",
+          "match": "\\bfunction\\b"
+        },
+        {
+          "name": "keyword.control.buzz",
+          "match": "\\b(return)\\b"
+        },
+        {
+          "name": "variable.language.buzz",
+          "match": "\\b(self|nil)\\b"
         }
       ]
     },
-    "variables": {
+    "control": {
       "patterns": [
         {
-          "name": "meta.function.declaration.buzz",
-          "begin": "\\b(function)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
-          "beginCaptures": {
-            "1": {
-              "name": "keyword.control.buzz"
-            },
-            "2": {
-              "name": "entity.name.function.buzz"
-            }
-          },
-          "end": "\\)",
-          "patterns": [
-            {
-              "name": "variable.parameter.buzz",
-              "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b"
-            }
-          ]
+          "name": "keyword.control.conditional.buzz",
+          "match": "\\b(if|else)\\b"
+        },
+        {
+          "name": "keyword.control.loop.buzz",
+          "match": "\\b(while|for|foreach)\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "meta.function.buzz",
+          "match": "\\b(function)\\s+([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+          "captures": {
+            "1": { "name": "keyword.declaration.function.buzz" },
+            "2": { "name": "entity.name.function.buzz" }
+          }
         },
         {
           "name": "meta.function.anonymous.buzz",
-          "begin": "(?:\\b(?:neighbors|stigmergy|queue|swarm)\\.[a-zA-Z]+\\s*\\([^)]*|\\.[a-zA-Z]+\\s*\\([^)]*|\\b)function\\s*\\(",
+          "begin": "\\b(function)\\s*\\(",
           "beginCaptures": {
-            "0": {
-              "name": "keyword.control.buzz"
-            }
+            "1": { "name": "keyword.declaration.function.buzz" }
           },
           "end": "\\)",
           "patterns": [
-            {
-              "name": "variable.parameter.buzz",
-              "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b"
-            }
+            { "include": "#function-parameters" }
           ]
         },
         {
-          "name": "meta.function.anonymous.argument.buzz",
-          "match": "\\.(foreach|map|reduce|filter|exec)\\s*\\([^)]*function\\s*\\(([^)]*)\\)",
+          "name": "meta.function-call.buzz",
+          "match": "\\b(?!function\\b)([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
           "captures": {
-            "2": {
-              "patterns": [
-                {
-                  "name": "variable.parameter.buzz",
-                  "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b"
-                }
-              ]
-            }
+            "1": { "name": "entity.name.function.buzz" }
           }
         },
         {
-          "name": "meta.function.anonymous.callback.buzz",
-          "match": "(?:\\b(?:neighbors|stigmergy|queue|swarm)\\.[a-zA-Z]+\\s*\\([^)]*|\\.[a-zA-Z]+\\s*\\([^)]*)function\\s*\\((\\s*[A-Za-z_][A-Za-z0-9_]*\\s*(?:,\\s*[A-Za-z_][A-Za-z0-9_]*\\s*)*)\\)",
+          "name": "support.function.buzz",
+          "match": "\\b(size|foreach|map|reduce|type|log|print)\\b"
+        },
+        {
+          "match": "\\b(math)\\.(abs|log|log2|log10|exp|sqrt|sin|cos|tan|asin|acos|atan|min|max|pi)\\b",
           "captures": {
-            "1": {
-              "patterns": [
-                {
-                  "match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b",
-                  "name": "variable.parameter.buzz"
-                }
-              ]
-            }
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.math.buzz" }
           }
         },
         {
-          "name": "meta.function.call.buzz",
-          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*\\(",
+          "match": "\\b(math)\\.(rng)\\.(setseed|uniform|gaussian|exponential)\\b",
           "captures": {
-            "1": {
-              "name": "entity.name.function.buzz"
-            }
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.class.buzz" },
+            "3": { "name": "support.function.math.rng.buzz" }
           }
         },
         {
-          "name": "variable.declaration.buzz",
-          "match": "\\b(var)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+          "match": "\\b(math)\\.(vec2)\\.(new|newp|rotate|scale|add|length|angle|norm|sross)\\b",
           "captures": {
-            "1": {
-              "name": "storage.type.buzz"
-            },
-            "2": {
-              "name": "variable.other.buzz"
-            }
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.class.buzz" },
+            "3": { "name": "support.function.math.vec2.buzz" }
           }
         },
         {
-          "name": "variable.other.constant.buzz",
-          "match": "\\b[A-Z][A-Z0-9_]*\\b(?!\\s*\\()"
-        },
-        {
-          "name": "variable.assignment.buzz",
-          "match": "\\b(?!var|function|if|else|elseif|while|for|foreach|include|return|nil|and|or|not|math|string|io|swarm|stigmergy|neighbors|queue|self|id)([A-Za-z_][A-Za-z0-9_]*)\\s*(=)(?!=)",
+          "match": "\\b(math)\\.(matrix)\\.(new|identity|sub)\\b",
           "captures": {
-            "1": {
-              "name": "variable.other.buzz"
-            },
-            "2": {
-              "name": "keyword.operator.assignment.buzz"
-            }
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.class.buzz" },
+            "3": { "name": "support.function.math.matrix.buzz" }
           }
         },
         {
-          "name": "variable.other.member.buzz",
-          "match": "\\b(?!math|string|io|swarm|stigmergy|neighbors|queue)([A-Za-z_][A-Za-z0-9_]*)\\s*\\.\\s*([A-Za-z_][A-Za-z0-9_]*)\\b(?!\\s*\\()",
+          "match": "\\b(string)\\.(length|sub|concat|tostring|toint|tofloat)\\b",
           "captures": {
-            "1": {
-              "name": "variable.other.object.buzz"
-            },
-            "2": {
-              "name": "variable.other.property.buzz"
-            }
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.string.buzz" }
           }
         },
         {
-          "name": "support.constant.buzz",
-          "match": "\\b(math\\.pi)\\b"
+          "match": "\\b(io)\\.(fopen|fclose|fsize|fforeach|fwrite|errno|error_message)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.io.buzz" }
+          }
+        },
+        {
+          "match": "\\b(swarm)\\.(create|intersection|union|difference)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.swarm.buzz" }
+          }
+        },
+        {
+          "match": "\\b(stigmergy)\\.(create|get|put|size|onconflict|onconflictlost|foreach)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.stigmergy.buzz" }
+          }
+        },
+        {
+          "match": "\\b(neighbors)\\.(get|kin|nonkin|map|reduce|filter|foreach|count|broadcast|listen|ignore)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.neighbors.buzz" }
+          }
+        },
+        {
+          "match": "\\b(queue)\\.(new|push|pop|print)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.queue.buzz" }
+          }
+        },
+        {
+          "match": "\\b(debug)\\.(print)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.function.debug.buzz" }
+          }
+        },
+        {
+          "match": "\\b(debug)\\.(trajectory)\\.(enable|disable|clear)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.class.buzz" },
+            "3": { "name": "support.function.debug.trajectory.buzz" }
+          }
+        },
+        {
+          "match": "\\b(debug)\\.(rays)\\.(add|clear)\\b",
+          "captures": {
+            "1": { "name": "support.class.buzz" },
+            "2": { "name": "support.class.buzz" },
+            "3": { "name": "support.function.debug.rays.buzz" }
+          }
+        },
+        {
+          "match": "\\b(s)\\.(join|leave|select|unselect|in|exec|others|id)\\b",
+          "captures": {
+            "1": { "name": "variable.other.buzz" },
+            "2": { "name": "support.function.swarm-instance.buzz" }
+          }
+        },
+        {
+          "match": "\\b(v)\\.(get|put|size|onconflict|onconflictlost|foreach|id)\\b",
+          "captures": {
+            "1": { "name": "variable.other.buzz" },
+            "2": { "name": "support.function.stigmergy-instance.buzz" }
+          }
         }
       ]
     },
-    "numbers": {
+    "function-parameters": {
       "patterns": [
         {
-          "name": "constant.numeric.buzz",
-          "match": "\\b\\d+(\\.\\d+)?\\b"
+          "name": "variable.parameter.buzz",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
+        },
+        {
+          "name": "punctuation.separator.parameter.buzz",
+          "match": ","
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.buzz",
+          "match": "\\b(true|false|nil)\\b"
         }
       ]
     },
     "operators": {
       "patterns": [
         {
+          "name": "keyword.operator.assignment.buzz",
+          "match": "="
+        },
+        {
           "name": "keyword.operator.arithmetic.buzz",
-          "match": "[+\\-*/%^]"
+          "match": "\\+|\\-|\\*|/|\\^|%"
+        },
+        {
+          "name": "keyword.operator.logical.buzz",
+          "match": "\\b(and|or|not)\\b"
         },
         {
           "name": "keyword.operator.comparison.buzz",
           "match": "==|!=|<=|>=|<|>"
-        },
-        {
-          "name": "keyword.operator.assignment.buzz",
-          "match": "="
         }
       ]
     },
-    "special_variables": {
+    "numbers": {
       "patterns": [
         {
-          "name": "variable.language.buzz",
-          "match": "\\b(self|id|errno|error_message)\\b"
+          "name": "constant.numeric.float.buzz",
+          "match": "\\b\\d+\\.\\d*\\b"
+        },
+        {
+          "name": "constant.numeric.integer.buzz",
+          "match": "\\b\\d+\\b"
         }
       ]
     },
-    "namespaces": {
+    "builtin-libraries": {
       "patterns": [
         {
           "name": "support.class.buzz",
-          "match": "\\b(math|string|io|swarm|stigmergy|neighbors|queue)\\b"
+          "match": "\\b(math|string|io|swarm|stigmergy|neighbors|queue|debug)\\b"
+        },
+        {
+          "name": "support.class.buzz",
+          "match": "\\b(debug)\\.(trajectory|rays)\\b"
         }
       ]
     },
-    "builtin_functions": {
+    "variables": {
       "patterns": [
         {
-          "name": "support.function.buzz",
-          "match": "\\b(type|size|foreach|map|reduce|log|print)\\b"
+          "name": "variable.other.constant.buzz",
+          "match": "\\b[A-Z][A-Z0-9_]*\\b"
         },
         {
-          "name": "support.function.string.buzz",
-          "match": "\\b(string\\.(length|sub|concat|tostring|toint|tofloat))\\b"
+          "name": "variable.other.property.buzz",
+          "match": "\\b(distance|azimuth|elevation|x|y|z|id)\\b"
         },
         {
-          "name": "support.function.io.buzz",
-          "match": "\\b(io\\.(fopen|fclose|fsize|fforeach|fwrite))\\b"
+          "name": "variable.language.buzz",
+          "match": "\\b(self|nil)\\b"
         },
         {
-          "name": "support.function.math.buzz",
-          "match": "\\b(math\\.(abs|log|log2|log10|exp|sqrt|sin|cos|tan|asin|acos|atan|min|max))\\b"
+          "name": "variable.other.buzz",
+          "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
         },
         {
-          "name": "support.function.math.rng.buzz",
-          "match": "\\b(math\\.rng\\.(setseed|uniform|gaussian|exponential))\\b"
-        },
-        {
-          "name": "support.function.math.vec2.buzz",
-          "match": "\\b(math\\.vec2\\.(new|newp|rotate))\\b"
-        },
-        {
-          "name": "support.function.swarm.buzz",
-          "match": "\\b(swarm\\.(create|intersection|union|difference))\\b"
-        },
-        {
-          "name": "support.function.swarm.instance.buzz",
-          "match": "\\b(join|select|unselect|leave|in|exec|others)\\b"
-        },
-        {
-          "name": "support.function.stigmergy.buzz",
-          "match": "\\b(stigmergy\\.create)\\b"
-        },
-        {
-          "name": "support.function.stigmergy.instance.buzz",
-          "match": "\\b(get|put|size|onconflict|onconflictlost|foreach)\\b"
-        },
-        {
-          "name": "support.function.neighbors.buzz",
-          "match": "\\b(neighbors\\.(get|kin|nonkin|map|reduce|filter|foreach|count|broadcast|listen|ignore))\\b"
-        },
-        {
-          "name": "support.function.queue.buzz",
-          "match": "\\b(queue\\.(new|push|pop|print))\\b"
+          "name": "variable.other.member.buzz",
+          "match": "\\.([a-zA-Z_][a-zA-Z0-9_]*)\\b"
         }
       ]
     }
