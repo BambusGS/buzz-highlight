@@ -1,0 +1,40 @@
+{
+    "name": "buzz-syntax",
+    "displayName": "Buzz Syntax Highlighting",
+    "description": "A VS Code extension for Buzz language syntax highlighting",
+    "version": "0.4.2",
+    "publisher": "Jakub Jandus",
+    "icon": "logo.png", 
+    "license": "MIT",
+    "author": {
+        "name": "BambusGS (Jakub Jandus)",
+        "url": "https://github.com/BambusGS",
+        "email": "71001586+BambusGS@users.noreply.github.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/BambusGS/buzz-highlight.git"
+    },
+    "engines": {  
+      "vscode": "^1.50.0"
+    },
+    "categories": [
+      "Programming Languages"
+    ],
+    "contributes": {
+      "languages": [
+        {
+          "id": "buzz",
+          "extensions": [".bzz"],
+          "aliases": ["Buzz", "buzz"]
+        }
+      ],
+      "grammars": [
+        {
+          "language": "buzz",
+          "scopeName": "source.buzz",
+          "path": "./syntaxes/buzz.tmLanguage.json"
+        }
+      ]
+    }
+  }
