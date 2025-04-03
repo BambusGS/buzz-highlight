@@ -26,7 +26,8 @@
         {
           "id": "buzz",
           "extensions": [".bzz"],
-          "aliases": ["Buzz", "buzz"]
+          "aliases": ["Buzz", "buzz"],
+          "configuration": "./language-configuration.json"
         }
       ],
       "grammars": [
@@ -36,5 +37,12 @@
           "path": "./syntaxes/buzz.tmLanguage.json"
         }
       ]
-    }
-  }
+    },
+    "keywords": [
+      "buzz",
+      "robot",
+      "swarm robotics",
+      "syntax",
+      "highlighting"
+    ]
+}
